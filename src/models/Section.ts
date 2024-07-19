@@ -1,4 +1,5 @@
 import { ISection } from "../interfaces/ISection";
+import { currentISODate } from "../utils/dateUtils";
 
 // src/models/Section.ts
 
@@ -10,7 +11,10 @@ export class Section implements ISection {
   private _title: string;
   private _content: string;
   private _index: number;
+  private _created_at: string;
+  private _edited_at: string;
   private _quote_id?: string;
+
 
   constructor(
     id: string,
@@ -20,6 +24,8 @@ export class Section implements ISection {
     title: string,
     content: string,
     index: number,
+    created_at: string,
+    edited_at?: string,
     quote_id?: string // Optional parameter
   ) {
     this._id = id;
@@ -30,6 +36,8 @@ export class Section implements ISection {
     this._content = content;
     this._index = index;
     this._quote_id = quote_id;
+    this._created_at = currentISODate();
+    this._edited_at = edited_at || created_at;
   }
 
   // Getters
@@ -65,6 +73,14 @@ export class Section implements ISection {
     return this._quote_id;
   }
 
+  get created_at(): string {
+    return this._created_at;
+  }
+
+  get edited_at(): string {
+    return this._edited_at;
+  }
+
   // Setters
   set id(id: string) {
     this._id = id;
@@ -96,5 +112,13 @@ export class Section implements ISection {
 
   set quote_id(quoteId: string | undefined) {
     this._quote_id = quoteId;
+  }
+
+  set created_at(created_at: string) {
+    this._created_at = created_at;
+  }
+
+  set edited_at(edited_at: string) {
+    this._edited_at = edited_at;
   }
 }

@@ -17,6 +17,7 @@ export class Quote implements IQuote {
   private _updated_by?: string;
   private _updated_at?: string;
   private _project_id?: string;
+  private _sections: Section[];
 
   constructor(
     quote_id: string,
@@ -28,6 +29,7 @@ export class Quote implements IQuote {
     itemsTableVersion: number,
     created_at: string,
     created_by: string,
+    sections: Section[],
     updated_by?: string,
     updated_at?: string,
     project_id?: string
@@ -44,13 +46,13 @@ export class Quote implements IQuote {
     this._updated_by = updated_by;
     this._updated_at = updated_at;
     this._project_id = project_id;
+    this._sections = sections;
   }
 
-  // Getters
+  // Getters and Setters
   get quote_id(): string {
     return this._quote_id;
   }
-
 
   get author(): string {
     return this._author;
@@ -96,8 +98,9 @@ export class Quote implements IQuote {
     return this._project_id;
   }
 
-  // Setters
- 
+  get sections(): Section[] {
+    return this._sections;
+  }
 
   set name(name: string) {
     this._name = name;
@@ -107,7 +110,6 @@ export class Quote implements IQuote {
     this._title = title;
   }
 
-
   set templateVersion(templateVersion: number) {
     this._templateVersion = templateVersion;
   }
@@ -115,7 +117,6 @@ export class Quote implements IQuote {
   set itemsTableVersion(itemsTableVersion: number) {
     this._itemsTableVersion = itemsTableVersion;
   }
-
 
   set updated_by(updatedBy: string | undefined) {
     this._updated_by = updatedBy;
@@ -125,39 +126,63 @@ export class Quote implements IQuote {
     this._updated_at = updatedAt;
   }
 
+  set project_id(projectId: string | undefined) {
+    this._project_id = projectId;
+  }
+
+  set sections(sections: Section[]) {
+    this._sections = sections;
+  }
 
   // Update methods
-  updateName(newName: string, updatesUserName: string): void {
-    this.name = newName;
+  updateQuote(
+    name: string,
+    title: string,
+    templateVersion: number,
+    itemsTableVersion: number,
+    updatedBy: string
+  ): void {
+    this.name = name;
+    this.title = title;
+    this.templateVersion = templateVersion;
+    this.itemsTableVersion = itemsTableVersion;
+    this.updated_by = updatedBy;
     this.updated_at = currentISODate();
-    this.updated_by = updatesUserName;
-
   }
 
-  updateTitle(newTitle: string, updatesUserName: string): void {
-    this.title = newTitle;
-    this.updated_at =  currentISODate();
-    this.updated_by = updatesUserName
-  }
-
-  updateTemplateVersion(newVersion: number, updatesUserName: string): void {
-    this.templateVersion = newVersion;
+  // Section management methods
+  addSection(section: Section, updatedBy: string): void {
+    this._sections.push(section);
+    this.updated_by = updatedBy;
     this.updated_at = currentISODate();
-    this.updated_by = updatesUserName;
-
   }
 
-  updateItemsTableVersion(newVersion: number, updatesUserName: string): void {
-    this.itemsTableVersion = newVersion;
-    this.updated_at = new Date().toISOString();
-    this.updated_by = updatesUserName;
+  getSection(section_id: string): Section | undefined {
+    return this._sections.find((section) => section.id === section_id);
   }
 
+  updateSection(updatedSection: Section, updatedBy: string): void {
+    const sectionToUpdate = this.getSection(updatedSection.id);
+    if (sectionToUpdate) {
+      sectionToUpdate.name = updatedSection.name;
+      sectionToUpdate.title = updatedSection.title;
+      sectionToUpdate.content = updatedSection.content;
+      sectionToUpdate.index = updatedSection.index;
+      this.updated_by = updatedBy;
+      this.updated_at = currentISODate();
+    } else {
+      throw new Error('Section not found');
+    }
+  }
 
-
-
-
-
-
-
+  deleteSection(section_id: string, updatedBy: string): void {
+    const sectionToDelete = this.getSection(section_id);
+    if (sectionToDelete) {
+      this._sections = this._sections.filter((section) => section.id !== section_id);
+      this.updated_by = updatedBy;
+      this.updated_at = currentISODate();
+    } else {
+      throw new Error('Section not found');
+    }
+  }
 }

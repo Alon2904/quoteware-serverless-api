@@ -1,14 +1,13 @@
 import dynamoDb from "../utils/dynamoDB";
 import { Project } from "../models/Project";
+import { currentISODate } from "../utils/dateUtils";
 
 const TableName = process.env.PROJECTS_TABLE as string;
 
 // Create a new project
 export const createProject = async (id: string, title: string): Promise<Project> => {
   try {
-    const lastUpdated = new Date().toISOString();
-
-    const newProject = new Project(id, title, lastUpdated);
+    const newProject = new Project(id, title);
 
     await dynamoDb
       .put({
@@ -49,7 +48,7 @@ export const updateProject = async (
   title: string
 ): Promise<Project> => {
   try {
-    const lastUpdated = new Date().toISOString();
+    const lastUpdated = currentISODate();
 
   
     const updatedProject = new Project(id, title, lastUpdated);

@@ -2,40 +2,50 @@ import dynamoDb from "../utils/dynamoDB";
 import { v4 as uuidv4 } from "uuid";
 import { Quote } from "../models/Quote";
 import { Section } from "../models/Section";
+import { currentISODate } from "../utils/dateUtils";
+
+// src/services/QuoteService.ts
 
 const TableName = process.env.QUOTES_TABLE as string;
 
 // Create a new quote
-export const createQuoteInProject = async (
+export const createQuote = async (
   author: string,
-  projectId: string,
+  name: string,
   title: string,
+  type: 'project' | 'template',
   templateVersion: number,
   itemsTableVersion: number,
-  sections: Section[]
+  createdBy: string,
+  sections: Section[] = [],
+  projectId?: string
 ): Promise<Quote> => {
   try {
-    const id = uuidv4();
-    const createdAt = new Date().toISOString();
-    const lastUpdated = new Date().toISOString();
+    const quoteId = uuidv4();
+    const createdAt = currentISODate();
 
-    const newQuote: Quote = {
-      id,
-      projectId,
+    const newQuote = new Quote(
+      quoteId,
       author,
+      name,
       title,
+      type,
       templateVersion,
       itemsTableVersion,
       createdAt,
-      lastUpdated,
+      createdBy,
       sections,
-      editedBy: undefined, // Set editedBy to undefined initially
-    };
+      undefined,
+      undefined,
+      projectId
+    );
 
-    await dynamoDb.put({
-      TableName,
-      Item: newQuote,
-    }).promise();
+    await dynamoDb
+      .put({
+        TableName,
+        Item: newQuote,
+      })
+      .promise();
 
     return newQuote;
   } catch (error) {
@@ -45,114 +55,98 @@ export const createQuoteInProject = async (
 };
 
 // Get a quote by ID
-export const getQuoteInProject = async (id: string): Promise<Quote | null> => {
+export const getQuote = async (quoteId: string): Promise<Quote | null> => {
   try {
-    const result = await dynamoDb.get({ TableName, Key: { id } }).promise();
+    const result = await dynamoDb.get({ TableName, Key: { quote_id: quoteId } }).promise();
 
     if (!result.Item) {
       return null;
     }
 
-    const quoteFromDb = result.Item as Quote;
-    quoteFromDb.createdAt = new Date(quoteFromDb.createdAt).toISOString();
-    quoteFromDb.lastUpdated = new Date(quoteFromDb.lastUpdated).toISOString();
-
-    return quoteFromDb;
+    return result.Item as Quote;
   } catch (error) {
-    console.error(`Error fetching quote with ID ${id}:`, error);
-    throw new Error(`Could not fetch quote with ID ${id}`);
+    console.error("Error getting quote:", error);
+    throw new Error("Could not get quote");
   }
 };
 
-// Update a quote
-export const updateQuoteInProject = async (
-  id: string,
+// Update a quote, including sections
+export const updateQuote = async (
+  quoteId: string,
+  name: string,
   title: string,
   templateVersion: number,
   itemsTableVersion: number,
   sections: Section[],
-  editedBy: string // Add editedBy parameter for updates
+  updatedBy: string,
 ): Promise<Quote | null> => {
   try {
-    const existingQuote = await getQuoteInProject(id);
+    const existingQuote = await getQuote(quoteId);
     if (!existingQuote) {
-      throw new Error(`Quote with ID ${id} not found`);
+      throw new Error(`Quote with ID ${quoteId} not found`);
     }
 
-    const lastUpdated = new Date().toISOString();
+    existingQuote.updateQuote(name, title, templateVersion, itemsTableVersion, updatedBy);
 
-    const updatedQuote: Quote = {
-      ...existingQuote,
-      title,
-      templateVersion,
-      itemsTableVersion,
-      lastUpdated,
-      sections,
-      editedBy,
-    };
+    // Update sections
+    existingQuote.sections = sections;
 
-    await dynamoDb.put({
-      TableName,
-      Item: updatedQuote,
-    }).promise();
+    await dynamoDb
+      .put({
+        TableName,
+        Item: existingQuote,
+      })
+      .promise();
 
-    return updatedQuote;
+    return existingQuote;
   } catch (error) {
-    console.error(`Error updating quote with ID ${id}:`, error);
-    throw new Error(`Could not update quote with ID ${id}`);
+    console.error(`Error updating quote with ID ${quoteId}:`, error);
+    throw new Error(`Could not update quote with ID ${quoteId}`);
   }
 };
 
 // Delete a quote
-export const deleteQuote = async (id: string): Promise<void> => {
+export const deleteQuote = async (quoteId: string): Promise<void> => {
   try {
-    const existingQuote = await getQuoteInProject(id);
-    if (!existingQuote) {
-      throw new Error(`Quote with ID ${id} not found`);
-    }
-
-    await dynamoDb.delete({ TableName, Key: { id } }).promise();
+    await dynamoDb
+      .delete({
+        TableName,
+        Key: { quote_id: quoteId },
+      })
+      .promise();
   } catch (error) {
-    console.error(`Error deleting quote with ID ${id}:`, error);
-    throw new Error(`Could not delete quote with ID ${id}`);
+    console.error(`Error deleting quote with ID ${quoteId}:`, error);
+    throw new Error(`Could not delete quote with ID ${quoteId}`);
   }
 };
 
-// List all quotes by project ID
-export const listQuotesByProjectId = async (projectId: string): Promise<Quote[]> => {
+// List all quotes
+export const listQuotes = async (): Promise<Quote[]> => {
   try {
     const result = await dynamoDb.scan({ TableName }).promise();
-    const quotesFromDb = result.Items as Quote[];
-
-    const quotes = quotesFromDb.filter(quote => quote.projectId === projectId);
-
-    return quotes.map(quote => ({
-      ...quote,
-      createdAt: new Date(quote.createdAt).toISOString(),
-      lastUpdated: new Date(quote.lastUpdated).toISOString(),
-    }));
+    return result.Items as Quote[];
   } catch (error) {
     console.error("Error listing quotes:", error);
     throw new Error("Could not list quotes");
   }
 };
 
-// Get a quote by ID (alternative method)
-export const getQuoteInProjectById = async (id: string): Promise<Quote | null> => {
+// List quotes by project
+export const listQuotesByProject = async (projectId: string): Promise<Quote[]> => {
   try {
-    const result = await dynamoDb.get({ TableName, Key: { id } }).promise();
+    const params = {
+      TableName,
+      IndexName: 'ProjectIndex', // Ensure you have an index on project_id
+      KeyConditionExpression: "project_id = :projectId",
+      ExpressionAttributeValues: {
+        ":projectId": projectId,
+      },
+    };
 
-    if (!result.Item) {
-      throw new Error(`Quote with ID ${id} not found`);
-    }
-
-    const quoteFromDb = result.Item as Quote;
-    quoteFromDb.createdAt = new Date(quoteFromDb.createdAt).toISOString();
-    quoteFromDb.lastUpdated = new Date(quoteFromDb.lastUpdated).toISOString();
-
-    return quoteFromDb;
+    const result = await dynamoDb.query(params).promise();
+    return result.Items as Quote[];
   } catch (error) {
-    console.error(`Error fetching quote with ID ${id}:`, error);
-    throw new Error(`Could not fetch quote with ID ${id}`);
+    console.error("Error listing quotes by project:", error);
+    throw new Error("Could not list quotes by project for project ID " + projectId);
   }
 };

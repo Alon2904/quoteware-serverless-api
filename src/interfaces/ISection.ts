@@ -8,4 +8,6 @@ export interface ISection {
     title: string;
     content: string;
     index: number;
+    created_at: string;
+    edited_at?: string;
   }
