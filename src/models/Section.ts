@@ -1,39 +1,100 @@
+import { ISection } from "../interfaces/ISection";
+
 // src/models/Section.ts
-export interface Section {
-    section_id: string;
-    name: string;
-    title: string;
-    content: string;
-    index: number;
+
+export class Section implements ISection {
+  private _id: string;
+  private _author: string;
+  private _type: 'project' | 'template';
+  private _name: string;
+  private _title: string;
+  private _content: string;
+  private _index: number;
+  private _quote_id?: string;
+
+  constructor(
+    id: string,
+    author: string,
+    type: 'project' | 'template',
+    name: string,
+    title: string,
+    content: string,
+    index: number,
+    quote_id?: string // Optional parameter
+  ) {
+    this._id = id;
+    this._author = author;
+    this._type = type;
+    this._name = name;
+    this._title = title;
+    this._content = content;
+    this._index = index;
+    this._quote_id = quote_id;
   }
-  
-  export class Section implements Section {
-    constructor(
-      public section_id: string,
-      public name: string,
-      public title: string,
-      public index: number,
-      public content: string
-    ) {}
-  
-    // Update section title
-    updateTitle(newTitle: string): void {
-      this.title = newTitle;
-    }
-  
-    // Update section content
-    updateContent(newContent: string): void {
-      this.content = newContent;
-    }
-  
-    // Update section name
-    updateSectionName(newName: string): void {
-      this.name = newName;
-    }
-  
-    // Update section index
-    updateSectionIndex(newIndex: number): void {
-      this.index = newIndex;
-    }
+
+  // Getters
+  get id(): string {
+    return this._id;
   }
-  
+
+  get author(): string {
+    return this._author;
+  }
+
+  get type(): 'project' | 'template' {
+    return this._type;
+  }
+
+  get name(): string {
+    return this._name;
+  }
+
+  get title(): string {
+    return this._title;
+  }
+
+  get content(): string {
+    return this._content;
+  }
+
+  get index(): number {
+    return this._index;
+  }
+
+  get quote_id(): string | undefined {
+    return this._quote_id;
+  }
+
+  // Setters
+  set id(id: string) {
+    this._id = id;
+  }
+
+  set author(author: string) {
+    this._author = author;
+  }
+
+  set type(type: 'project' | 'template') {
+    this._type = type;
+  }
+
+  set name(name: string) {
+    this._name = name;
+  }
+
+  set title(title: string) {
+    this._title = title;
+  }
+
+  set content(content: string) {
+    this._content = content;
+  }
+
+  set index(index: number) {
+    this._index = index;
+  }
+
+  set quote_id(quoteId: string | undefined) {
+    this._quote_id = quoteId;
+  }
+}

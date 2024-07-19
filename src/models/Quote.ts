@@ -1,92 +1,163 @@
+import { IQuote } from "../interfaces/IQuote";
+import { currentISODate } from "../utils/dateUtils";
 import { Section } from "./Section";
 
 // src/models/Quote.ts
 
-export interface Quote {
-  quote_id: string;
-  author: string;
-  project_id?: string; // Nullable for templates
-  type: 'project' | 'template';
-  title: string;
-  templateVersion: number;
-  itemsTableVersion: number;
-  sections: Section[];
-  created_at: string; // Storing dates as ISO strings for DynamoDB
-  created_by: string;
-  updated_at?: string; // Storing dates as ISO strings for DynamoDB
-  updated_by?: string;
-}
+export class Quote implements IQuote {
+  private _quote_id: string;
+  private _author: string;
+  private _name: string;
+  private _title: string;
+  private _type: 'project' | 'template';
+  private _templateVersion: number;
+  private _itemsTableVersion: number;
+  private _created_at: string;
+  private _created_by: string;
+  private _updated_by?: string;
+  private _updated_at?: string;
+  private _project_id?: string;
 
-export class Quote implements Quote {
   constructor(
-    public quote_id: string,
-    public author: string,
-    public title: string,
-    public type: 'project' | 'template',
-    public templateVersion: number,
-    public itemsTableVersion: number,
-    public created_at: string,
-    public created_by: string,
-    public sections: Section[] = [],
-    public updated_by?: string,
-    public updated_at?: string,
-    public project_id?: string // Nullable for templates
-  ) {}
+    quote_id: string,
+    author: string,
+    name: string,
+    title: string,
+    type: 'project' | 'template',
+    templateVersion: number,
+    itemsTableVersion: number,
+    created_at: string,
+    created_by: string,
+    updated_by?: string,
+    updated_at?: string,
+    project_id?: string
+  ) {
+    this._quote_id = quote_id;
+    this._author = author;
+    this._name = name;
+    this._title = title;
+    this._type = type;
+    this._templateVersion = templateVersion;
+    this._itemsTableVersion = itemsTableVersion;
+    this._created_at = created_at;
+    this._created_by = created_by;
+    this._updated_by = updated_by;
+    this._updated_at = updated_at;
+    this._project_id = project_id;
+  }
 
-  // Update quote title
-  updateTitle(newTitle: string): void {
+  // Getters
+  get quote_id(): string {
+    return this._quote_id;
+  }
+
+
+  get author(): string {
+    return this._author;
+  }
+
+  get name(): string {
+    return this._name;
+  }
+
+  get title(): string {
+    return this._title;
+  }
+
+  get type(): 'project' | 'template' {
+    return this._type;
+  }
+
+  get templateVersion(): number {
+    return this._templateVersion;
+  }
+
+  get itemsTableVersion(): number {
+    return this._itemsTableVersion;
+  }
+
+  get created_at(): string {
+    return this._created_at;
+  }
+
+  get created_by(): string {
+    return this._created_by;
+  }
+
+  get updated_by(): string | undefined {
+    return this._updated_by;
+  }
+
+  get updated_at(): string | undefined {
+    return this._updated_at;
+  }
+
+  get project_id(): string | undefined {
+    return this._project_id;
+  }
+
+  // Setters
+ 
+
+  set name(name: string) {
+    this._name = name;
+  }
+
+  set title(title: string) {
+    this._title = title;
+  }
+
+
+  set templateVersion(templateVersion: number) {
+    this._templateVersion = templateVersion;
+  }
+
+  set itemsTableVersion(itemsTableVersion: number) {
+    this._itemsTableVersion = itemsTableVersion;
+  }
+
+
+  set updated_by(updatedBy: string | undefined) {
+    this._updated_by = updatedBy;
+  }
+
+  set updated_at(updatedAt: string | undefined) {
+    this._updated_at = updatedAt;
+  }
+
+
+  // Update methods
+  updateName(newName: string, updatesUserName: string): void {
+    this.name = newName;
+    this.updated_at = currentISODate();
+    this.updated_by = updatesUserName;
+
+  }
+
+  updateTitle(newTitle: string, updatesUserName: string): void {
     this.title = newTitle;
-    this.updated_at = new Date().toISOString();
+    this.updated_at =  currentISODate();
+    this.updated_by = updatesUserName
   }
 
-  // Update template version
-  updateTemplateVersion(newVersion: number): void {
+  updateTemplateVersion(newVersion: number, updatesUserName: string): void {
     this.templateVersion = newVersion;
-    this.updated_at = new Date().toISOString();
+    this.updated_at = currentISODate();
+    this.updated_by = updatesUserName;
+
   }
 
-  // Update items table version
-  updateItemsTableVersion(newVersion: number): void {
+  updateItemsTableVersion(newVersion: number, updatesUserName: string): void {
     this.itemsTableVersion = newVersion;
     this.updated_at = new Date().toISOString();
+    this.updated_by = updatesUserName;
   }
 
-  // Add section to quote
-  addSection(section: Section, updatedBy: string): void {
-    this.sections.push(section);
-    this.updated_by = updatedBy;
-    this.updated_at = new Date().toISOString();
-  }
 
-  // Get section by id
-  getSection(section_id: string): Section | undefined {
-    return this.sections.find((section) => section.section_id === section_id);
-  }
 
-  // Update section in quote
-  updateSection(updatedSection: Section, updatedBy: string): void {
-    const sectionToUpdate = this.getSection(updatedSection.section_id);
-    if (sectionToUpdate) {
-      sectionToUpdate.name = updatedSection.name;
-      sectionToUpdate.title = updatedSection.title;
-      sectionToUpdate.content = updatedSection.content;
-      sectionToUpdate.index = updatedSection.index;
-      this.updated_by = updatedBy;
-      this.updated_at = new Date().toISOString();
-    } else {
-      throw new Error('Section not found');
-    }
-  }
 
-  // Remove section from quote
-  deleteSection(section_id: string, updatedBy: string): void {
-    const sectionToDelete = this.getSection(section_id);
-    if (sectionToDelete) {
-      this.sections = this.sections.filter((section) => section.section_id !== section_id);
-      this.updated_by = updatedBy;
-      this.updated_at = new Date().toISOString();
-    } else {
-      throw new Error('Section not found');
-    }
-  }
+
+
+
+
 }

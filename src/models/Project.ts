@@ -1,29 +1,51 @@
 // src/models/Project.ts
-export interface Project {
-    id: string;
-    title: string;
-    lastUpdated: string; // Storing dates as ISO strings for DynamoDB
-  }
+ import {IProject } from '../interfaces/IProject'
+
+
+
+
+
+  export class Project implements IProject {
+
+    private _id: string;
+    private _title: string;
+    private _lastUpdated: string;
+
   
-  export class Project implements Project {
-    
-
-
-
     constructor(
-      public id: string,
-      public title: string,
-      public lastUpdated: string = new Date().toISOString() // Convert Date to ISO string
+      id: string,
+      title: string,
+      lastUpdated: string = new Date().toISOString() // Convert Date to ISO string
     ) {
-        this.id = id;
-        this.title = title;
-        this.lastUpdated = lastUpdated;
+        this._id = id;
+        this._title = title;
+        this._lastUpdated = lastUpdated;
     }
   
-    // Update the project title
-    updateTitle(newTitle: string): void {
-      this.title = newTitle;
-      this.lastUpdated = new Date().toISOString();
-    }
+  // Getters
+  get id(): string {
+    return this._id;
   }
-  
+
+  get title(): string {
+    return this._title;
+  }
+
+  get lastUpdated(): string {
+    return this._lastUpdated;
+  }
+
+  // Setters
+  set id(id: string) {
+    this._id = id;
+  }
+
+  set title(title: string) {
+    this._title = title;
+  }
+
+  set lastUpdated(lastUpdated: string) {
+    this._lastUpdated = lastUpdated;
+  }
+
+}
