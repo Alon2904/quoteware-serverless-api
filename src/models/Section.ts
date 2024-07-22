@@ -24,10 +24,11 @@ export class Section implements ISection {
     title: string,
     content: string,
     index: number,
-    created_at: string,
     edited_at?: string,
     quote_id?: string // Optional parameter
   ) {
+
+
     this._id = id;
     this._author = author;
     this._type = type;
@@ -37,7 +38,7 @@ export class Section implements ISection {
     this._index = index;
     this._quote_id = quote_id;
     this._created_at = currentISODate();
-    this._edited_at = edited_at || created_at;
+    this._edited_at = edited_at || this._created_at;
   }
 
   // Getters
