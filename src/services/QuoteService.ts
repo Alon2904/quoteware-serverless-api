@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Quote } from "../models/Quote";
 import { Section } from "../models/Section";
 import { currentISODate } from "../utils/dateUtils";
+import { DynamoDBError, QuoteNotFoundError } from "../utils/errors";
 
 // src/services/QuoteService.ts
 
@@ -83,17 +84,15 @@ export const updateQuote = async (
   try {
     const existingQuote = await getQuote(quoteId);
     if (!existingQuote) {
-      throw new Error(`Quote with ID ${quoteId} not found`);
+      throw new QuoteNotFoundError(`Quote with ID ${quoteId} not found`);
     }
 
     existingQuote.updateQuote(name, title, templateVersion, itemsTableVersion, updatedBy);
-
-    // Update sections
     existingQuote.sections = sections;
 
     await dynamoDb
       .put({
-        TableName,
+        TableName: process.env.QUOTES_TABLE as string,
         Item: existingQuote,
       })
       .promise();
@@ -101,7 +100,10 @@ export const updateQuote = async (
     return existingQuote;
   } catch (error) {
     console.error(`Error updating quote with ID ${quoteId}:`, error);
-    throw new Error(`Could not update quote with ID ${quoteId}`);
+    if (error instanceof QuoteNotFoundError) {
+      throw error;
+    }
+    throw new DynamoDBError(`Could not update quote with ID ${quoteId}`);
   }
 };
 

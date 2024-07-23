@@ -15,7 +15,6 @@ export class Section implements ISection {
   private _edited_at: string;
   private _quote_id?: string;
 
-
   constructor(
     id: string,
     author: string,
@@ -25,10 +24,8 @@ export class Section implements ISection {
     content: string,
     index: number,
     edited_at?: string,
-    quote_id?: string // Optional parameter
+    quote_id?: string
   ) {
-
-
     this._id = id;
     this._author = author;
     this._type = type;
@@ -83,18 +80,6 @@ export class Section implements ISection {
   }
 
   // Setters
-  set id(id: string) {
-    this._id = id;
-  }
-
-  set author(author: string) {
-    this._author = author;
-  }
-
-  set type(type: 'project' | 'template') {
-    this._type = type;
-  }
-
   set name(name: string) {
     this._name = name;
   }
@@ -122,4 +107,20 @@ export class Section implements ISection {
   set edited_at(edited_at: string) {
     this._edited_at = edited_at;
   }
+
+  // Method to convert to plain object
+    toObject(): ISection {
+      return {
+        id: this._id,
+        author: this._author,
+        type: this._type,
+        name: this._name,
+        title: this._title,
+        content: this._content,
+        index: this._index,
+        created_at: this._created_at,
+        edited_at: this._edited_at,
+        quote_id: this._quote_id,
+      };
+    }
 }

@@ -134,7 +134,17 @@ export class Quote implements IQuote {
     this._sections = sections;
   }
 
+  
+
   // Update methods
+  /**
+   * Updates the properties of the quote.
+   * @param name - The name of the quote.
+   * @param title - The title of the quote.
+   * @param templateVersion - The version of the template.
+   * @param itemsTableVersion - The version of the items table.
+   * @param updatedBy - The name of the user who updated the quote.
+   */
   updateQuote(
     name: string,
     title: string,
@@ -151,12 +161,23 @@ export class Quote implements IQuote {
   }
 
   // Section management methods
+  /**
+   * Adds a section to the quote.
+   * 
+   * @param section - The section to be added.
+   * @param updatedBy - The name of the user who updated the quote.
+   */
   addSection(section: Section, updatedBy: string): void {
     this._sections.push(section);
     this.updated_by = updatedBy;
     this.updated_at = currentISODate();
   }
 
+  /**
+   * Retrieves a section from the quote by its ID.
+   * @param section_id - The ID of the section to retrieve.
+   * @returns The section with the specified ID, or undefined if not found.
+   */
   getSection(section_id: string): Section | undefined {
     return this._sections.find((section) => section.id === section_id);
   }
