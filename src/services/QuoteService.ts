@@ -51,7 +51,7 @@ export const createQuote = async (
     return newQuote;
   } catch (error) {
     console.error("Error creating quote:", error);
-    throw new Error("Could not create quote");
+    throw new DynamoDBError("Could not create quote");
   }
 };
 

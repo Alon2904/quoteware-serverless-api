@@ -1,6 +1,7 @@
 import dynamoDb from "../utils/dynamoDB";
 import { Project } from "../models/Project";
 import { currentISODate } from "../utils/dateUtils";
+import { DynamoDBError, ProjectNotFoundError } from "../utils/errors";
 
 const TableName = process.env.PROJECTS_TABLE as string;
 
@@ -19,7 +20,7 @@ export const createProject = async (id: string, title: string): Promise<Project>
     return newProject;
   } catch (error) {
     console.error("Error creating project:", error);
-    throw new Error("Could not create project");
+    throw new DynamoDBError("Could not create project");
   }
 };
 
@@ -38,10 +39,11 @@ export const getProject = async (id: string): Promise<Project | null> => {
     return projectFromDb;
   } catch (error) {
     console.error("Error getting project:", error);
-    throw new Error("Could not get project");
+    throw new DynamoDBError("Could not get project");
   }
 };
 
+// Update a project
 // Update a project
 export const updateProject = async (
   id: string,
@@ -50,7 +52,11 @@ export const updateProject = async (
   try {
     const lastUpdated = currentISODate();
 
-  
+    const existingProject = await getProject(id);
+    if (!existingProject) {
+      throw new ProjectNotFoundError(`Project with ID ${id} not found`);
+    }
+
     const updatedProject = new Project(id, title, lastUpdated);
 
     await dynamoDb
@@ -63,13 +69,25 @@ export const updateProject = async (
     return updatedProject;
   } catch (error) {
     console.error("Error updating project:", error);
-    throw new Error("Could not update project");
+    if (error instanceof ProjectNotFoundError) {
+      throw error;
+    }
+    throw new DynamoDBError(`Could not update project with ID ${id}`);
   }
 };
+
 
 // Delete a project
 export const deleteProject = async (id: string): Promise<void> => {
   try {
+
+    // Check if the project exists
+    const existingProject = await getProject(id);
+    if (!existingProject) {
+      throw new ProjectNotFoundError(`Project with ID ${id} not found`);
+    }
+
+
     await dynamoDb
       .delete({
         TableName,
@@ -77,8 +95,12 @@ export const deleteProject = async (id: string): Promise<void> => {
       })
       .promise();
   } catch (error) {
+
+    if( error instanceof ProjectNotFoundError){
+      throw error;
+    }
     console.error(`Error deleting project with ID ${id}:`, error);
-    throw new Error(`Could not delete project with ID ${id}`);
+    throw new DynamoDBError(`Could not delete project with ID ${id}`);
   }
 };
 
@@ -91,6 +113,6 @@ export const listProjects = async (): Promise<Project[]> => {
     return projectsFromDb;
   } catch (error) {
     console.error("Error listing projects:", error);
-    throw new Error("Could not list projects");
+    throw new DynamoDBError("Could not list projects");
   }
 };

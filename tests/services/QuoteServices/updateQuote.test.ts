@@ -16,7 +16,7 @@ jest.mock('../../../src/utils/dateUtils', () => ({
 // Mock DynamoDB client
 jest.mock("../../../src/utils/dynamoDB");
 
-describe("updateQuote", () => {
+describe("updateQuote 1", () => {
   const TableName = process.env.QUOTES_TABLE as string;
 
   beforeEach(() => {

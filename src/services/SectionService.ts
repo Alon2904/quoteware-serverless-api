@@ -29,7 +29,6 @@ export const createSection = async (
       index,
       createdAt,
       createdAt,
-      quote_id
     );
 
     await dynamoDb

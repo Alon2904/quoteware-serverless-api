@@ -1,1 +1,10 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Production
+dist/
+
+# Other files and directories to ignore
+.env
+coverage/
+logs/

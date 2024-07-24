@@ -1,0 +1,42 @@
+service: serverless-quotes-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-west-1
+  environment:
+    QUOTES_TABLE: ${self:service}-quotes
+
+plugins:
+  - serverless-offline
+
+package:
+  exclude:
+    - node_modules/**
+    - src/**
+    - test/**
+
+functions:
+  createQuoteWithSections:
+    handler: dist/src/handlers/QuoteHandlers/createQuoteWithSections.handler
+    events:
+      - http:
+          path: quotes
+          method: post
+
+
+resources:
+  Resources:
+    QuotesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.QUOTES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

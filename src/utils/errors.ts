@@ -26,4 +26,13 @@ export class QuoteNotFoundError extends Error {
       this.statusCode = HTTP_STATUS_CODES.BAD_REQUEST;
     }
   }
+
+  export class ProjectNotFoundError extends Error {
+    statusCode: number;
+    constructor(message: string) {
+      super(message);
+      this.name = "ProjectNotFoundError";
+      this.statusCode = HTTP_STATUS_CODES.NOT_FOUND;
+    }
+  }
   
