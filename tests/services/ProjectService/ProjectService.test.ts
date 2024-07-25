@@ -13,9 +13,7 @@ import {
 
 jest.mock("../../../src/utils/dynamoDB");
 
-jest.mock("../../../src/utils/dateUtils", () => ({
-    currentISODate: jest.fn(() => '2023-01-01T00:00:00.000Z'),
-  }));
+
 
 describe("createProject", () => {
   const TableName = process.env.PROJECTS_TABLE as string;

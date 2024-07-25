@@ -16,7 +16,7 @@ jest.mock('../../../src/utils/dateUtils', () => ({
 // Mock DynamoDB client
 jest.mock("../../../src/utils/dynamoDB");
 
-describe("updateQuote 1", () => {
+describe("updateQuote", () => {
   const TableName = process.env.QUOTES_TABLE as string;
 
   beforeEach(() => {
@@ -46,9 +46,25 @@ describe("updateQuote 1", () => {
         "Section Name 1",
         "Section Title 1",
         "Section Content 1",
-        1
+        1,
+        "2023-01-01T00:00:00.000Z"
       )
     ];
+
+    const updatedQuote = new Quote(
+      quoteId,
+      "John Doe",
+      "Updated Quote Name",
+      "Updated Quote Title",
+      "project",
+      2,
+      3,
+      "2023-01-01T00:00:00.000Z",
+      "John Doe",
+      updatedSections,
+      "Jane Doe",
+      "2023-01-01T00:00:00.000Z"
+    );
 
     const mockGet = dynamoDb.get as jest.Mock;
     mockGet.mockReturnValue({
@@ -60,49 +76,40 @@ describe("updateQuote 1", () => {
       promise: jest.fn().mockResolvedValue({}),
     });
 
-    const result = await updateQuote(
-      quoteId,
-      "Updated Quote Name",
-      "Updated Quote Title",
-      2,
-      3,
-      updatedSections,
-      "Jane Doe"
-    );
+    const result = await updateQuote(updatedQuote);
 
-    expect(result).toEqual(expect.objectContaining({
-      name: "Updated Quote Name",
-      title: "Updated Quote Title",
-      templateVersion: 2,
-      itemsTableVersion: 3,
-      sections: updatedSections,
-      updated_by: "Jane Doe",
-      updated_at: "2023-01-01T00:00:00.000Z"
-    }));
+    expect(result).toEqual(updatedQuote);
 
     expect(mockPut).toHaveBeenCalledWith({
       TableName,
-      Item: result,
+      Item: updatedQuote.toItem(),
     });
   });
 
   it("should throw an error if the quote does not exist", async () => {
     const quoteId = "2";
 
+    const updatedQuote = new Quote(
+      quoteId,
+      "John Doe",
+      "Updated Quote Name",
+      "Updated Quote Title",
+      "project",
+      2,
+      3,
+      "2023-01-01T00:00:00.000Z",
+      "John Doe",
+      [],
+      "Jane Doe",
+      "2023-01-01T00:00:00.000Z"
+    );
+
     const mockGet = dynamoDb.get as jest.Mock;
     mockGet.mockReturnValue({
       promise: jest.fn().mockResolvedValue({}),
     });
 
-    await expect(updateQuote(
-      quoteId,
-      "Updated Quote Name",
-      "Updated Quote Title",
-      2,
-      3,
-      [],
-      "Jane Doe"
-    )).rejects.toThrow(`Quote with ID ${quoteId} not found`);
+    await expect(updateQuote(updatedQuote)).rejects.toThrow(`Quote with ID ${quoteId} not found`);
   });
 
   it("should throw an error if DynamoDB put fails", async () => {
@@ -128,9 +135,25 @@ describe("updateQuote 1", () => {
         "Section Name 1",
         "Section Title 1",
         "Section Content 1",
-        1
+        1,
+        "2023-01-01T00:00:00.000Z"
       )
     ];
+
+    const updatedQuote = new Quote(
+      quoteId,
+      "John Doe",
+      "Updated Quote Name",
+      "Updated Quote Title",
+      "project",
+      2,
+      3,
+      "2023-01-01T00:00:00.000Z",
+      "John Doe",
+      updatedSections,
+      "Jane Doe",
+      "2023-01-01T00:00:00.000Z"
+    );
 
     const mockGet = dynamoDb.get as jest.Mock;
     mockGet.mockReturnValue({
@@ -142,17 +165,6 @@ describe("updateQuote 1", () => {
       promise: jest.fn().mockRejectedValue(new Error("DynamoDB error")),
     });
 
-    await expect(updateQuote(
-      quoteId,
-      "Updated Quote Name",
-      "Updated Quote Title",
-      2,
-      3,
-      updatedSections,
-      "Jane Doe"
-    )).rejects.toThrow(`Could not update quote with ID ${quoteId}`);
+    await expect(updateQuote(updatedQuote)).rejects.toThrow(`Could not update quote with ID ${quoteId}`);
   });
-
-
-
 });

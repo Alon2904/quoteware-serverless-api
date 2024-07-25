@@ -60,7 +60,7 @@ describe("createQuote", () => {
     expect(result).toEqual(expectedQuote);
     expect(mockPut).toHaveBeenCalledWith({
       TableName,
-      Item: expectedQuote,
+      Item: expectedQuote.toItem(), // Use the toItem() method to get the plain object representation
     });
   });
 
