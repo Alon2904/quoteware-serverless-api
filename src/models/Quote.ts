@@ -3,50 +3,39 @@ import { currentISODate } from "../utils/dateUtils";
 import { Section } from "./Section";
 
 // src/models/Quote.ts
-
 export class Quote implements IQuote {
-  private _quote_id: string;
-  private _author: string;
-  private _name: string;
-  private _title: string;
-  private _type: 'project' | 'template';
-  private _templateVersion: number;
-  private _itemsTableVersion: number;
-  private _created_at: string;
-  private _created_by: string;
-  private _updated_by?: string;
-  private _updated_at?: string;
-  private _project_id?: string;
-  private _sections: Section[];
-
   constructor(
-    quote_id: string,
-    author: string,
-    name: string,
-    title: string,
-    type: 'project' | 'template',
-    templateVersion: number,
-    itemsTableVersion: number,
-    created_at: string,
-    created_by: string,
-    sections: Section[],
-    updated_by?: string,
-    updated_at?: string,
-    project_id?: string
-  ) {
-    this._quote_id = quote_id;
-    this._author = author;
-    this._name = name;
-    this._title = title;
-    this._type = type;
-    this._templateVersion = templateVersion;
-    this._itemsTableVersion = itemsTableVersion;
-    this._created_at = created_at;
-    this._created_by = created_by;
-    this._updated_by = updated_by;
-    this._updated_at = updated_at;
-    this._project_id = project_id;
-    this._sections = sections;
+    private _quote_id: string,
+    private _author: string,
+    private _name: string,
+    private _title: string,
+    private _type: 'project' | 'template',
+    private _templateVersion: number,
+    private _itemsTableVersion: number,
+    private _created_at: string,
+    private _created_by: string,
+    private _sections: Section[],
+    private _updated_by?: string,
+    private _updated_at?: string,
+    private _project_id?: string
+  ) {}
+
+  toItem(): Record<string, any> {
+    return {
+      quote_id: this._quote_id,
+      author: this._author,
+      name: this._name,
+      title: this._title,
+      type: this._type,
+      templateVersion: this._templateVersion,
+      itemsTableVersion: this._itemsTableVersion,
+      created_at: this._created_at,
+      created_by: this._created_by,
+      updated_by: this._updated_by,
+      updated_at: this._updated_at,
+      project_id: this._project_id,
+      sections: this._sections.map(section => section.toItem()),
+    };
   }
 
   // Getters and Setters

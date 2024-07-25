@@ -38,6 +38,21 @@ export class Section implements ISection {
     this._edited_at = edited_at || this._created_at;
   }
 
+  toItem(): Record<string, any> {
+    return {
+      id: this._id,
+      author: this._author,
+      type: this._type,
+      name: this._name,
+      title: this._title,
+      content: this._content,
+      index: this._index,
+      created_at: this._created_at,
+      edited_at: this._edited_at,
+      quote_id: this._quote_id,
+    };
+  }
+
   // Getters
   get id(): string {
     return this._id;

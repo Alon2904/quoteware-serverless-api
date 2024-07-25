@@ -19,10 +19,19 @@ package:
 functions:
   createQuoteWithSections:
     handler: dist/src/handlers/QuoteHandlers/createQuoteWithSections.handler
+    timeout: 30
     events:
       - http:
           path: quotes
           method: post
+  updateQuote:
+    handler: dist/src/handlers/QuoteHandlers/updateQuote.handler
+    timeout: 30
+    events:
+      - http:
+          path: quotes/{quote_id}
+          method: put
+          
 
 
 resources:
@@ -32,10 +41,10 @@ resources:
       Properties:
         TableName: ${self:provider.environment.QUOTES_TABLE}
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: quote_id
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: quote_id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

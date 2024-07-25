@@ -44,7 +44,7 @@ export const createQuote = async (
     await dynamoDb
       .put({
         TableName,
-        Item: newQuote,
+        Item: newQuote.toItem(),
       })
       .promise();
 
@@ -72,38 +72,32 @@ export const getQuote = async (quoteId: string): Promise<Quote | null> => {
 };
 
 // Update a quote, including sections
-export const updateQuote = async (
-  quoteId: string,
-  name: string,
-  title: string,
-  templateVersion: number,
-  itemsTableVersion: number,
-  sections: Section[],
-  updatedBy: string,
-): Promise<Quote | null> => {
+export const updateQuote = async (updatedQuote: Quote): Promise<Quote> => {
+  console.log('inside updateQuote', updatedQuote);
   try {
-    const existingQuote = await getQuote(quoteId);
+    const existingQuote = await getQuote(updatedQuote.quote_id);
     if (!existingQuote) {
-      throw new QuoteNotFoundError(`Quote with ID ${quoteId} not found`);
+      throw new QuoteNotFoundError(`Quote with ID ${updatedQuote.quote_id} not found`);
     }
 
-    existingQuote.updateQuote(name, title, templateVersion, itemsTableVersion, updatedBy);
-    existingQuote.sections = sections;
+    console.log('got the quote', existingQuote);
+
+    const itemsisedQuote = updatedQuote.toItem();
 
     await dynamoDb
       .put({
         TableName: process.env.QUOTES_TABLE as string,
-        Item: existingQuote,
+        Item: itemsisedQuote,
       })
       .promise();
 
-    return existingQuote;
+    return updatedQuote;
   } catch (error) {
-    console.error(`Error updating quote with ID ${quoteId}:`, error);
+    console.error(`Error updating quote with ID ${updatedQuote.quote_id}:`, error);
     if (error instanceof QuoteNotFoundError) {
       throw error;
     }
-    throw new DynamoDBError(`Could not update quote with ID ${quoteId}`);
+    throw new DynamoDBError(`Could not update quote with ID ${updatedQuote.quote_id}`);
   }
 };
 
