@@ -8,6 +8,15 @@ export class QuoteNotFoundError extends Error {
       this.statusCode = HTTP_STATUS_CODES.NOT_FOUND;
     }
   }
+
+  export class MissingArgumentError extends Error {
+    statusCode: number;
+    constructor(message: string) {
+      super(message);
+      this.name = "MissingArgumentError";
+      this.statusCode = HTTP_STATUS_CODES.BAD_REQUEST;
+    }
+  }
   
   export class DynamoDBError extends Error {
     statusCode: number;
