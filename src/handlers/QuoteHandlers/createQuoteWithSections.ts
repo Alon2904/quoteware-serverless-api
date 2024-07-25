@@ -1,5 +1,4 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import { v4 as uuidv4 } from "uuid";
 import { Section } from "../../models/Section";
 import { createQuote } from "../../services/QuoteService";
@@ -8,7 +7,9 @@ import { ValidationError } from "../../utils/errors";
 import { HTTP_STATUS_CODES } from "../../utils/httpStatusCodes";
 import { createQuoteSchema } from "../../validation/quoteValidation";
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler: APIGatewayProxyHandler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   try {
     const requestBody = JSON.parse(event.body || '{}');
 
@@ -23,7 +24,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const { author, name, title, type, templateVersion, itemsTableVersion, createdBy, sections } = requestBody;
 
     const sectionInstances = sections.map((section: any) => {
-      const sectionInstance = new Section(
+      return new Section(
         section.id || uuidv4(),
         section.author,
         section.type,
@@ -33,7 +34,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         section.index,
         section.edited_at || currentISODate()
       );
-      return sectionInstance.toObject(); // Convert to plain object
     });
 
     const newQuote = await createQuote(
@@ -49,7 +49,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     return {
       statusCode: HTTP_STATUS_CODES.CREATED,
-      body: JSON.stringify(newQuote),
+      body: JSON.stringify(newQuote.toItem()),
     };
   } catch (error) {
     const errorMessage = (error as Error).message || "Internal Server Error";
@@ -63,3 +63,5 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     };
   }
 };
+
+export const createQuoteWithSectionsHandler: APIGatewayProxyHandler = handler as APIGatewayProxyHandler;
