@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "dev": "serverless offline start"
+    "dev": "serverless offline start",
+    "deploy": "serverless deploy"
 
   },
   "keywords": [],
