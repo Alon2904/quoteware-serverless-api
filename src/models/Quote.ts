@@ -5,42 +5,42 @@ import { Section } from "./Section";
 // src/models/Quote.ts
 export class Quote implements IQuote {
   constructor(
-    private _quote_id: string,
+    private _quoteId: string,
     private _author: string,
     private _name: string,
     private _title: string,
     private _type: 'project' | 'template',
     private _templateVersion: number,
     private _itemsTableVersion: number,
-    private _created_at: string,
-    private _created_by: string,
+    private _createdAt: string,
+    private _createdBy: string,
     private _sections: Section[],
-    private _updated_by?: string,
-    private _updated_at?: string,
-    private _project_id?: string
+    private _updatedBy?: string,
+    private _updatedAt?: string,
+    private _projectId?: string
   ) {}
 
   toItem(): Record<string, any> {
     return {
-      quote_id: this._quote_id,
+      quoteId: this._quoteId,
       author: this._author,
       name: this._name,
       title: this._title,
       type: this._type,
       templateVersion: this._templateVersion,
       itemsTableVersion: this._itemsTableVersion,
-      created_at: this._created_at,
-      created_by: this._created_by,
-      updated_by: this._updated_by,
-      updated_at: this._updated_at,
-      project_id: this._project_id,
+      createdAt: this._createdAt,
+      createdBy: this._createdBy,
+      updatedBy: this._updatedBy,
+      updatedAt: this._updatedAt,
+      projectId: this._projectId,
       sections: this._sections.map(section => section.toItem()),
     };
   }
 
   // Getters and Setters
-  get quote_id(): string {
-    return this._quote_id;
+  get quoteId(): string {
+    return this._quoteId;
   }
 
   get author(): string {
@@ -67,24 +67,24 @@ export class Quote implements IQuote {
     return this._itemsTableVersion;
   }
 
-  get created_at(): string {
-    return this._created_at;
+  get createdAt(): string {
+    return this._createdAt;
   }
 
-  get created_by(): string {
-    return this._created_by;
+  get createdBy(): string {
+    return this._createdBy;
   }
 
-  get updated_by(): string | undefined {
-    return this._updated_by;
+  get updatedBy(): string | undefined {
+    return this._updatedBy;
   }
 
-  get updated_at(): string | undefined {
-    return this._updated_at;
+  get updatedAt(): string | undefined {
+    return this._updatedAt;
   }
 
-  get project_id(): string | undefined {
-    return this._project_id;
+  get projectId(): string | undefined {
+    return this._projectId;
   }
 
   get sections(): Section[] {
@@ -107,16 +107,16 @@ export class Quote implements IQuote {
     this._itemsTableVersion = itemsTableVersion;
   }
 
-  set updated_by(updatedBy: string | undefined) {
-    this._updated_by = updatedBy;
+  set updatedBy(updatedBy: string | undefined) {
+    this._updatedBy = updatedBy;
   }
 
-  set updated_at(updatedAt: string | undefined) {
-    this._updated_at = updatedAt;
+  set updatedAt(updatedAt: string | undefined) {
+    this._updatedAt = updatedAt;
   }
 
-  set project_id(projectId: string | undefined) {
-    this._project_id = projectId;
+  set projectId(projectId: string | undefined) {
+    this._projectId = projectId;
   }
 
   set sections(sections: Section[]) {
@@ -145,8 +145,8 @@ export class Quote implements IQuote {
     this.title = title;
     this.templateVersion = templateVersion;
     this.itemsTableVersion = itemsTableVersion;
-    this.updated_by = updatedBy;
-    this.updated_at = currentISODate();
+    this.updatedBy = updatedBy;
+    this.updatedAt = currentISODate();
   }
 
   // Section management methods
@@ -158,17 +158,17 @@ export class Quote implements IQuote {
    */
   addSection(section: Section, updatedBy: string): void {
     this._sections.push(section);
-    this.updated_by = updatedBy;
-    this.updated_at = currentISODate();
+    this.updatedBy = updatedBy;
+    this.updatedAt = currentISODate();
   }
 
   /**
    * Retrieves a section from the quote by its ID.
-   * @param section_id - The ID of the section to retrieve.
+   * @param sectionId - The ID of the section to retrieve.
    * @returns The section with the specified ID, or undefined if not found.
    */
-  getSection(section_id: string): Section | undefined {
-    return this._sections.find((section) => section.id === section_id);
+  getSection(sectionId: string): Section | undefined {
+    return this._sections.find((section) => section.id === sectionId);
   }
 
   updateSection(updatedSection: Section, updatedBy: string): void {
@@ -178,19 +178,19 @@ export class Quote implements IQuote {
       sectionToUpdate.title = updatedSection.title;
       sectionToUpdate.content = updatedSection.content;
       sectionToUpdate.index = updatedSection.index;
-      this.updated_by = updatedBy;
-      this.updated_at = currentISODate();
+      this.updatedBy = updatedBy;
+      this.updatedAt = currentISODate();
     } else {
       throw new Error('Section not found');
     }
   }
 
-  deleteSection(section_id: string, updatedBy: string): void {
-    const sectionToDelete = this.getSection(section_id);
+  deleteSection(sectionId: string, updatedBy: string): void {
+    const sectionToDelete = this.getSection(sectionId);
     if (sectionToDelete) {
-      this._sections = this._sections.filter((section) => section.id !== section_id);
-      this.updated_by = updatedBy;
-      this.updated_at = currentISODate();
+      this._sections = this._sections.filter((section) => section.id !== sectionId);
+      this.updatedBy = updatedBy;
+      this.updatedAt = currentISODate();
     } else {
       throw new Error('Section not found');
     }

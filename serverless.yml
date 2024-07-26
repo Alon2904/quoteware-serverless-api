@@ -29,7 +29,7 @@ functions:
     timeout: 30
     events:
       - http:
-          path: quotes/{quote_id}
+          path: quotes/{quoteId}
           method: put
           
 
@@ -41,10 +41,10 @@ resources:
       Properties:
         TableName: ${self:provider.environment.QUOTES_TABLE}
         AttributeDefinitions:
-          - AttributeName: quote_id
+          - AttributeName: quoteId
             AttributeType: S
         KeySchema:
-          - AttributeName: quote_id
+          - AttributeName: quoteId
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

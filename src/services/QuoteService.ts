@@ -22,8 +22,8 @@ export const createQuote = async (
   projectId?: string
 ): Promise<Quote> => {
   try {
-    const quoteId = uuidv4();
-    const createdAt = currentISODate();
+    const quoteId: string = uuidv4();
+    const createdAt: string = currentISODate();
 
     const newQuote = new Quote(
       quoteId,
@@ -58,7 +58,7 @@ export const createQuote = async (
 // Get a quote by ID
 export const getQuote = async (quoteId: string): Promise<Quote | null> => {
   try {
-    const result = await dynamoDb.get({ TableName, Key: { quote_id: quoteId } }).promise();
+    const result = await dynamoDb.get({ TableName, Key: { quoteId: quoteId } }).promise();
 
     if (!result.Item) {
       return null;
@@ -72,32 +72,66 @@ export const getQuote = async (quoteId: string): Promise<Quote | null> => {
 };
 
 // Update a quote, including sections
-export const updateQuote = async (updatedQuote: Quote): Promise<Quote> => {
-  console.log('inside updateQuote', updatedQuote);
+export const updateQuote = async (quoteToUpdate: Quote): Promise<Quote> => {
   try {
-    const existingQuote = await getQuote(updatedQuote.quote_id);
+    const existingQuote = await getQuote(quoteToUpdate.quoteId);
     if (!existingQuote) {
-      throw new QuoteNotFoundError(`Quote with ID ${updatedQuote.quote_id} not found`);
+      throw new QuoteNotFoundError(`Quote with ID ${quoteToUpdate.quoteId} not found`);
     }
 
-    console.log('got the quote', existingQuote);
+    const updatedAt: string = currentISODate();
 
-    const itemsisedQuote = updatedQuote.toItem();
+    // Update existing sections or add new sections
+    const sectionsMap = new Map<string, Section>();
+    existingQuote.sections.forEach(section => sectionsMap.set(section.id, section));
+
+    const updatedSections: Section[] = quoteToUpdate.sections.map(section => {
+      const existingSection = sectionsMap.get(section.id);
+      return new Section(
+        section.id || uuidv4(),
+        existingSection ? existingSection.author : section.author,
+        section.type,
+        section.name,
+        section.title,
+        section.content,
+        section.index,
+        existingSection ? existingSection.createdAt : currentISODate(),
+        updatedAt
+      );
+    });
+
+    const quoteForDynamo = new Quote(
+      quoteToUpdate.quoteId,
+      existingQuote.author, // Preserve the original author
+      quoteToUpdate.name,
+      quoteToUpdate.title,
+      quoteToUpdate.type,
+      quoteToUpdate.templateVersion,
+      quoteToUpdate.itemsTableVersion,
+      existingQuote.createdAt, // Preserve the original createdAt
+      existingQuote.createdBy, // Preserve the original createdBy
+      updatedSections,
+      updatedAt,
+      quoteToUpdate.updatedBy,
+      existingQuote.projectId // Preserve the original projectId
+    );
+
+    const itemsisedQuote = quoteForDynamo.toItem();
 
     await dynamoDb
       .put({
-        TableName: process.env.QUOTES_TABLE as string,
+        TableName,
         Item: itemsisedQuote,
       })
       .promise();
 
-    return updatedQuote;
+    return quoteForDynamo;
   } catch (error) {
-    console.error(`Error updating quote with ID ${updatedQuote.quote_id}:`, error);
+    console.error(`Error updating quote with ID ${quoteToUpdate.quoteId}:`, error);
     if (error instanceof QuoteNotFoundError) {
       throw error;
     }
-    throw new DynamoDBError(`Could not update quote with ID ${updatedQuote.quote_id}`);
+    throw new DynamoDBError(`Could not update quote with ID ${quoteToUpdate.quoteId}`);
   }
 };
 
@@ -107,7 +141,7 @@ export const deleteQuote = async (quoteId: string): Promise<void> => {
     await dynamoDb
       .delete({
         TableName,
-        Key: { quote_id: quoteId },
+        Key: { quoteId: quoteId },
       })
       .promise();
   } catch (error) {

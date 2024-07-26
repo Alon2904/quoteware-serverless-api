@@ -1,18 +1,18 @@
 import { ISection } from "./ISection";
 
 export interface IQuote {
-    quote_id: string;
+    quoteId: string;
     author: string;
-    project_id?: string; // Nullable for templates
+    projectId?: string; // Nullable for templates
     type: 'project' | 'template';
     name: string;
     title: string;
     templateVersion: number;
     itemsTableVersion: number;
-    created_at: string; // Storing dates as ISO strings for DynamoDB
-    created_by: string;
-    updated_at?: string; // Storing dates as ISO strings for DynamoDB
-    updated_by?: string;
+    createdAt: string; // Storing dates as ISO strings for DynamoDB
+    createdBy: string;
+    updatedAt?: string; // Storing dates as ISO strings for DynamoDB
+    updatedBy?: string;
     sections: ISection[];
   }
 

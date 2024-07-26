@@ -12,7 +12,7 @@ export const handler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const quoteId = event.pathParameters?.quote_id; // Assuming the quote ID is passed as a path parameter
+    const quoteId = event.pathParameters?.quoteId; // Assuming the quote ID is passed as a path parameter
     if (!quoteId) {
       return {
         statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
