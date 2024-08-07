@@ -84,7 +84,7 @@ export const updateSection = async (
   author: string
 ): Promise<Section> => {
   try {
-    const editedAt = currentISODate();
+    const updatedAt = currentISODate();
     const type = 'template';
 
     const updatedSection = new Section(
@@ -95,7 +95,7 @@ export const updateSection = async (
       title,
       content,
       index,
-      editedAt
+      updatedAt
     );
 
     await dynamoDb

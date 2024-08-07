@@ -9,5 +9,5 @@ export interface ISection {
     content: string;
     index: number;
     createdAt: string;
-    editedAt?: string;
+    updatedAt?: string;
   }

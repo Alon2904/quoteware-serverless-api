@@ -12,7 +12,7 @@ export class Section implements ISection {
   private _content: string;
   private _index: number;
   private _createdAt: string;
-  private _editedAt: string;
+  private _updatedAt: string;
   private _quoteId?: string;
 
   constructor(
@@ -23,7 +23,7 @@ export class Section implements ISection {
     title: string,
     content: string,
     index: number,
-    editedAt?: string,
+    updatedAt?: string,
     quoteId?: string
   ) {
     this._id = id;
@@ -35,7 +35,7 @@ export class Section implements ISection {
     this._index = index;
     this._quoteId = quoteId;
     this._createdAt = currentISODate();
-    this._editedAt = editedAt || this._createdAt;
+    this._updatedAt = updatedAt || this._createdAt;
   }
 
   toItem(): Record<string, any> {
@@ -48,7 +48,7 @@ export class Section implements ISection {
       content: this._content,
       index: this._index,
       createdAt: this._createdAt,
-      editedAt: this._editedAt,
+      updatedAt: this._updatedAt,
       quoteId: this._quoteId,
     };
   }
@@ -90,8 +90,8 @@ export class Section implements ISection {
     return this._createdAt;
   }
 
-  get editedAt(): string {
-    return this._editedAt;
+  get updatedAt(): string {
+    return this._updatedAt;
   }
 
   // Setters
@@ -119,8 +119,8 @@ export class Section implements ISection {
     this._createdAt = createdAt;
   }
 
-  set editedAt(editedAt: string) {
-    this._editedAt = editedAt;
+  set updatedAt(updatedAt: string) {
+    this._updatedAt = updatedAt;
   }
 
   // Method to convert to plain object
@@ -134,8 +134,24 @@ export class Section implements ISection {
         content: this._content,
         index: this._index,
         createdAt: this._createdAt,
-        editedAt: this._editedAt,
+        updatedAt: this._updatedAt,
         quoteId: this._quoteId,
       };
+    }
+
+
+    // Static method to create a Section instance from a plain object
+    static fromItem(item: any): Section {
+      return new Section(
+        item.id,
+        item.author,
+        item.type,
+        item.name,
+        item.title,
+        item.content,
+        item.index,
+        item.updatedAt,
+        item.quoteId
+      );
     }
 }

@@ -64,7 +64,8 @@ export const getQuote = async (quoteId: string): Promise<Quote | null> => {
       return null;
     }
 
-    return result.Item as Quote;
+
+    return Quote.fromItem(result.Item);  
   } catch (error) {
     console.error("Error getting quote:", error);
     throw new Error("Could not get quote");
@@ -146,7 +147,7 @@ export const deleteQuote = async (quoteId: string): Promise<void> => {
       .promise();
   } catch (error) {
     console.error(`Error deleting quote with ID ${quoteId}:`, error);
-    throw new Error(`Could not delete quote with ID ${quoteId}`);
+    throw new DynamoDBError(`Could not delete quote with ID ${quoteId}`);
   }
 };
 

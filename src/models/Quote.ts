@@ -195,4 +195,25 @@ export class Quote implements IQuote {
       throw new Error('Section not found');
     }
   }
+
+
+  //factory method
+  static fromItem(item: any): Quote {
+    const sections = item.sections.map((section: any) => Section.fromItem(section));
+    return new Quote(
+      item.quoteId,
+      item.author,
+      item.name,
+      item.title,
+      item.type,
+      item.templateVersion,
+      item.itemsTableVersion,
+      item.createdAt,
+      item.createdBy,
+      sections,
+      item.updatedBy,
+      item.updatedAt,
+      item.projectId
+    );
+  }
 }

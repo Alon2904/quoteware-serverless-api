@@ -5,22 +5,13 @@
 
 
 
-  export class Project implements IProject {
-
-    private _id: string;
-    private _title: string;
-    private _lastUpdated: string;
-
-  
-    constructor(
-      id: string,
-      title: string,
-      lastUpdated: string = new Date().toISOString() // Convert Date to ISO string
-    ) {
-        this._id = id;
-        this._title = title;
-        this._lastUpdated = lastUpdated;
-    }
+  export class Project implements IProject {  
+ 
+  constructor(
+    private _id: string,
+    private _title: string,
+    private _updatedAt?: string
+  ) {}
   
   // Getters
   get id(): string {
@@ -31,8 +22,8 @@
     return this._title;
   }
 
-  get lastUpdated(): string {
-    return this._lastUpdated;
+  get updatedAt(): string | undefined {
+    return this._updatedAt;
   }
 
   // Setters
@@ -44,8 +35,8 @@
     this._title = title;
   }
 
-  set lastUpdated(lastUpdated: string) {
-    this._lastUpdated = lastUpdated;
+  set updatedAt(updatedAt: string) {
+    this._updatedAt = updatedAt;
   }
 
 }
