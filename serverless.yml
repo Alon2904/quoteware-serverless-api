@@ -5,7 +5,8 @@ provider:
   runtime: nodejs18.x
   region: eu-west-1
   environment:
-    QUOTES_TABLE: ${self:service}-quotes
+    QUOTES_TABLE: ${self:service}-project-quotes
+    TEMPLATES_TABLE: ${self:service}-templates-quotes
 
 plugins:
   - serverless-offline
@@ -17,23 +18,64 @@ package:
     - test/**
 
 functions:
-  createQuoteWithSections:
-    handler: dist/src/handlers/QuoteHandlers/createQuoteWithSections.handler
+  createProjectQuote:
+    handler: dist/src/handlers/projectQuotes/createProjectQuote.handler
     timeout: 30
     events:
       - http:
-          path: quotes
+          path: projects/{projectId}/quotes
           method: post
-  updateQuote:
-    handler: dist/src/handlers/QuoteHandlers/updateQuote.handler
+  updateProjectQuote:
+    handler: dist/src/handlers/projectQuotes/updateProjectQuote.handler
     timeout: 30
     events:
       - http:
-          path: quotes/{quoteId}
+          path: projects/{projectId}/quotes/{quoteId}
           method: put
-          
+  getProjectQuote:
+    handler: dist/src/handlers/projectQuotes/getProjectQuote.handler
+    timeout: 30
+    events:
+      - http:
+          path: projects/{projectId}/quotes/{quoteId}
+          method: get
+  deleteProjectQuote:
+    handler: dist/src/handlers/projectQuotes/deleteProjectQuote.handler
+    timeout: 30
+    events:
+      - http:
+          path: projects/{projectId}/quotes/{quoteId}
+          method: delete
+  createTemplateQuote:
+    handler: dist/src/handlers/projectQuotes/createTemplateQuote.handler
+    timeout: 30
+    events:
+      - http:
+          path: templates/quotes
+          method: post
+  updateTemplateQuote:
+    handler: dist/src/handlers/QuoteHandlers/updateTemplateQuote.handler
+    timeout: 30
+    events:
+      - http:
+          path: templates/quotes/{templateId}
+          method: put
+  getTemplateQuote:
+    handler: dist/src/handlers/QuoteHandlers/getTemplateQuote.handler
+    timeout: 30
+    events:
+      - http:
+          path: templates/quotes/{templateId}
+          method: get
+  deleteTemplateQuote:
+    handler: dist/src/handlers/QuoteHandlers/deleteTemplateQuote.handler
+    timeout: 30
+    events:
+      - http:
+          path: templates/quotes/{templateId}
+          method: delete
 
-
+# Commented out the resources section temporarily
 resources:
   Resources:
     QuotesTable:
@@ -43,9 +85,37 @@ resources:
         AttributeDefinitions:
           - AttributeName: quoteId
             AttributeType: S
+          - AttributeName: projectId
+            AttributeType: S
         KeySchema:
           - AttributeName: quoteId
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: ProjectIndex
+            KeySchema:
+              - AttributeName: projectId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+      
+
+    # TemplatesTable:
+    #   Type: AWS::DynamoDB::Table
+    #   Properties:
+    #     TableName: ${self:provider.environment.TEMPLATES_TABLE}
+    #     AttributeDefinitions:
+    #       - AttributeName: templateId
+    #         AttributeType: S
+    #     KeySchema:
+    #       - AttributeName: templateId
+    #         KeyType: HASH
+    #     ProvisionedThroughput:
+    #       ReadCapacityUnits: 1
+    #       WriteCapacityUnits: 1
+      

@@ -8,3 +8,10 @@ dist/
 .env
 coverage/
 logs/
+
+
+# cloudformation
+cloudformation-template-create-stack.json
+cloudformation-template-update-stack.json
+serverless-quotes-api.zip
+serverless-state.json
