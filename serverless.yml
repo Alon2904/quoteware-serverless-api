@@ -46,29 +46,30 @@ functions:
       - http:
           path: projects/{projectId}/quotes/{quoteId}
           method: delete
+  # Template Quotes
   createTemplateQuote:
-    handler: dist/src/handlers/projectQuotes/createTemplateQuote.handler
+    handler: dist/src/handlers/templateQuotes/createTemplateQuote.handler
     timeout: 30
     events:
       - http:
           path: templates/quotes
           method: post
   updateTemplateQuote:
-    handler: dist/src/handlers/QuoteHandlers/updateTemplateQuote.handler
+    handler: dist/src/handlers/templateQuotes/updateTemplateQuote.handler
     timeout: 30
     events:
       - http:
           path: templates/quotes/{templateId}
           method: put
   getTemplateQuote:
-    handler: dist/src/handlers/QuoteHandlers/getTemplateQuote.handler
+    handler: dist/src/handlers/templateQuotes/getTemplateQuote.handler
     timeout: 30
     events:
       - http:
           path: templates/quotes/{templateId}
           method: get
   deleteTemplateQuote:
-    handler: dist/src/handlers/QuoteHandlers/deleteTemplateQuote.handler
+    handler: dist/src/handlers/templateQuotes/deleteTemplateQuote.handler
     timeout: 30
     events:
       - http:
@@ -105,17 +106,17 @@ resources:
           WriteCapacityUnits: 1
       
 
-    # TemplatesTable:
-    #   Type: AWS::DynamoDB::Table
-    #   Properties:
-    #     TableName: ${self:provider.environment.TEMPLATES_TABLE}
-    #     AttributeDefinitions:
-    #       - AttributeName: templateId
-    #         AttributeType: S
-    #     KeySchema:
-    #       - AttributeName: templateId
-    #         KeyType: HASH
-    #     ProvisionedThroughput:
-    #       ReadCapacityUnits: 1
-    #       WriteCapacityUnits: 1
+    TemplatesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TEMPLATES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: templateId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: templateId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
       
