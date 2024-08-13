@@ -77,6 +77,37 @@ functions:
           path: templates/quotes/{quoteId}
           method: delete
 
+  # Project Quotes
+  createProject:
+    handler: dist/src/handlers/projects/createProject.handler
+    timeout: 30
+    events:
+      - http:
+          path: projects
+          method: post
+  getProject:
+    handler: dist/src/handlers/projects/getProject.handler
+    timeout: 30
+    events:
+      - http:
+          path: projects/{projectId}
+          method: get
+  updateProject:
+    handler: dist/src/handlers/projects/updateProject.handler
+    timeout: 30
+    events:
+      - http:
+          path: projects/{projectId} 
+          method: put
+  deleteProject:
+    handler: dist/src/handlers/projects/deleteProject.handler
+    timeout: 30
+    events:
+      - http:
+          path: projects/{projectId}
+          method: delete
+          
+
 
 resources:
   Resources:
