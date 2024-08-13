@@ -8,6 +8,7 @@ provider:
     QUOTES_TABLE: ${self:service}-project-quotes
     TEMPLATES_TABLE: ${self:service}-templates-quotes
     SECTIONS_TABLE: ${self:service}-sections
+    PROJECTS_TABLE: ${self:service}-projects
 
 plugins:
   - serverless-offline
@@ -77,36 +78,36 @@ functions:
           path: templates/quotes/{quoteId}
           method: delete
 
-  # Project Quotes
+  # Project
   createProject:
-    handler: dist/src/handlers/projects/createProject.handler
+    handler: dist/src/handlers/ProjectHandlers/createProject.handler
     timeout: 30
     events:
       - http:
           path: projects
           method: post
   getProject:
-    handler: dist/src/handlers/projects/getProject.handler
+    handler: dist/src/handlers/ProjectHandlers/getProject.handler
     timeout: 30
     events:
       - http:
           path: projects/{projectId}
           method: get
   updateProject:
-    handler: dist/src/handlers/projects/updateProject.handler
+    handler: dist/src/handlers/ProjectHandlers/updateProject.handler
     timeout: 30
     events:
       - http:
           path: projects/{projectId} 
           method: put
   deleteProject:
-    handler: dist/src/handlers/projects/deleteProject.handler
+    handler: dist/src/handlers/ProjectHandlers/deleteProject.handler
     timeout: 30
     events:
       - http:
           path: projects/{projectId}
           method: delete
-          
+
 
 
 resources:
@@ -138,7 +139,7 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
       
-
+    # Templates Table
     TemplatesTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -153,7 +154,7 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
 
-
+    # Sections Table
     SectionsTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -163,6 +164,20 @@ resources:
             AttributeType: S
         KeySchema:
           - AttributeName: quoteId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    ProjectsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.PROJECTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: projectId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projectId
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

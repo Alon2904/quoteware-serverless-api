@@ -44,4 +44,13 @@ export class QuoteNotFoundError extends Error {
       this.statusCode = HTTP_STATUS_CODES.NOT_FOUND;
     }
   }
+
+  export class ProjectAlreadyExistsError extends Error {
+    statusCode: number;
+    constructor(message: string) {
+      super(message);
+      this.name = "ProjectAlreadyExistsError";
+      this.statusCode = HTTP_STATUS_CODES.CONFLICT;
+    }
+  }
   

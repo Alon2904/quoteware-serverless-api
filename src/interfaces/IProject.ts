@@ -1,5 +1,5 @@
 export interface IProject {
-    id: string;
+    projectId: string;
     title: string;
     lastQuoteId?: string;
     updatedAt?: string; // Storing dates as ISO strings for DynamoDB

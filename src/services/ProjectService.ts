@@ -7,14 +7,16 @@ const TableName = process.env.PROJECTS_TABLE as string;
 
 // Create a new project
 //creating project with no lastQuoteId as it will be added once a quote will be saved.
-export const createProject = async (id: string, title: string): Promise<Project> => {
+export const createProject = async (projectId: string, title: string): Promise<Project> => {
   try {
-    const newProject = new Project(id, title);
+    const newProject = new Project(projectId, title);
+
+
 
     await dynamoDb
       .put({
         TableName,
-        Item: newProject,
+        Item: newProject.toItem(),
       })
       .promise();
 
@@ -26,9 +28,9 @@ export const createProject = async (id: string, title: string): Promise<Project>
 };
 
 // Get a project by ID
-export const getProject = async (id: string): Promise<Project | null> => {
+export const getProject = async (projectId: string): Promise<Project | null> => {
   try {
-    const result = await dynamoDb.get({ TableName, Key: { id } }).promise();
+    const result = await dynamoDb.get({ TableName, Key: { projectId } }).promise();
 
     if (!result.Item) {
       return null;
@@ -47,24 +49,24 @@ export const getProject = async (id: string): Promise<Project | null> => {
 // Update a project
 // Update a project
 export const updateProject = async (
-  id: string,
+  projectId: string,
   title: string,
   lastQuoteId?: string
 ): Promise<Project> => {
   try {
     const lastUpdated = currentISODate();
 
-    const existingProject = await getProject(id);
+    const existingProject = await getProject(projectId);
     if (!existingProject) {
-      throw new ProjectNotFoundError(`Project with ID ${id} not found`);
+      throw new ProjectNotFoundError(`Project with ID ${projectId} not found`);
     }
 
-    const updatedProject = new Project(id, title, lastQuoteId, lastUpdated);
+    const updatedProject = new Project(projectId, title, lastQuoteId, lastUpdated);
 
     await dynamoDb
       .put({
         TableName,
-        Item: updatedProject,
+        Item: updatedProject.toItem(),
       })
       .promise();
 
@@ -74,26 +76,26 @@ export const updateProject = async (
     if (error instanceof ProjectNotFoundError) {
       throw error;
     }
-    throw new DynamoDBError(`Could not update project with ID ${id}`);
+    throw new DynamoDBError(`Could not update project with ID ${projectId}`);
   }
 };
 
 
 // Delete a project
-export const deleteProject = async (id: string): Promise<void> => {
+export const deleteProject = async (projectId: string): Promise<void> => {
   try {
 
     // Check if the project exists
-    const existingProject = await getProject(id);
+    const existingProject = await getProject(projectId);
     if (!existingProject) {
-      throw new ProjectNotFoundError(`Project with ID ${id} not found`);
+      throw new ProjectNotFoundError(`Project with ID ${projectId} not found`);
     }
 
 
     await dynamoDb
       .delete({
         TableName,
-        Key: { id },
+        Key: { projectId },
       })
       .promise();
   } catch (error) {
@@ -101,8 +103,8 @@ export const deleteProject = async (id: string): Promise<void> => {
     if( error instanceof ProjectNotFoundError){
       throw error;
     }
-    console.error(`Error deleting project with ID ${id}:`, error);
-    throw new DynamoDBError(`Could not delete project with ID ${id}`);
+    console.error(`Error deleting project with ID ${projectId}:`, error);
+    throw new DynamoDBError(`Could not delete project with ID ${projectId}`);
   }
 };
 
