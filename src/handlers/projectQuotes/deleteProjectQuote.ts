@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import { Quote } from "../../models/Quote";
-import { deleteQuote, getQuote } from "../../services/QuoteService";
+import { deleteProjectQuote, getProjectQuote } from "../../services/QuoteService";
 import { MissingArgumentError, QuoteNotFoundError, ValidationError } from "../../utils/errors";
 import { HTTP_STATUS_CODES } from "../../utils/httpStatusCodes";
 
@@ -16,14 +16,14 @@ export const handler: APIGatewayProxyHandler = async (
         throw new MissingArgumentError("Project ID is required");
     }
 
-    const quote = await getQuote(quoteId);
+    const quote = await getProjectQuote(quoteId);
     if (!quote) {
       throw new QuoteNotFoundError(`Quote with ID "${quoteId}" not found`);
     } else if (quote.projectId !== projectId) {
         throw new ValidationError(`Quote with ID "${quoteId}" does not belong to project with ID "${projectId}"`);
     }
 
-    await deleteQuote(quoteId);
+    await deleteProjectQuote(quoteId);
 
     return {
         statusCode: HTTP_STATUS_CODES.NO_CONTENT,

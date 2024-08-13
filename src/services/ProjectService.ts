@@ -6,6 +6,7 @@ import { DynamoDBError, ProjectNotFoundError } from "../utils/errors";
 const TableName = process.env.PROJECTS_TABLE as string;
 
 // Create a new project
+//creating project with no lastQuoteId as it will be added once a quote will be saved.
 export const createProject = async (id: string, title: string): Promise<Project> => {
   try {
     const newProject = new Project(id, title);
@@ -47,7 +48,8 @@ export const getProject = async (id: string): Promise<Project | null> => {
 // Update a project
 export const updateProject = async (
   id: string,
-  title: string
+  title: string,
+  lastQuoteId?: string
 ): Promise<Project> => {
   try {
     const lastUpdated = currentISODate();
@@ -57,7 +59,7 @@ export const updateProject = async (
       throw new ProjectNotFoundError(`Project with ID ${id} not found`);
     }
 
-    const updatedProject = new Project(id, title, lastUpdated);
+    const updatedProject = new Project(id, title, lastQuoteId, lastUpdated);
 
     await dynamoDb
       .put({

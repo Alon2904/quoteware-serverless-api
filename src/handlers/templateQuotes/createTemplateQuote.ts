@@ -1,26 +1,20 @@
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import { v4 as uuidv4 } from "uuid";
 import { Section } from "../../models/Section";
-import { createProjectQuote } from "../../services/QuoteService";
+import { createTemplateQuote } from "../../services/QuoteService";
 import { currentISODate } from "../../utils/dateUtils";
 import { MissingArgumentError, ValidationError } from "../../utils/errors";
 import { HTTP_STATUS_CODES } from "../../utils/httpStatusCodes";
-import { createProjectQuoteSchema } from "../../validation/quoteValidation";
+import { createTemplateQuoteSchema } from "../../validation/quoteValidation";
 
 export const handler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    let requestBody;
-    try {
-      requestBody = JSON.parse(event.body || '{}');
-    } catch (error) {
-      throw new ValidationError("Invalid JSON format in the request body");
-    }
+    const requestBody = JSON.parse(event.body || '{}');
 
-    const projectId = event.pathParameters?.projectId;
 
-    const { error } = createProjectQuoteSchema.validate({...requestBody, projectId});
+    const { error } = createTemplateQuoteSchema.validate(requestBody);
     if (error) {
         throw new MissingArgumentError(error.details[0].message);
     }
@@ -40,7 +34,7 @@ export const handler: APIGatewayProxyHandler = async (
       );
     });
 
-    const newQuote = await createProjectQuote(
+    const newQuote = await createTemplateQuote(
       author,
       name,
       title,
@@ -48,8 +42,7 @@ export const handler: APIGatewayProxyHandler = async (
       templateVersion,
       itemsTableVersion,
       createdBy,
-      sectionInstances,
-      projectId
+      sectionInstances
     );
 
     return {

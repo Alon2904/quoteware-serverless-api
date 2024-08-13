@@ -7,6 +7,7 @@ provider:
   environment:
     QUOTES_TABLE: ${self:service}-project-quotes
     TEMPLATES_TABLE: ${self:service}-templates-quotes
+    SECTIONS_TABLE: ${self:service}-sections
 
 plugins:
   - serverless-offline
@@ -59,26 +60,27 @@ functions:
     timeout: 30
     events:
       - http:
-          path: templates/quotes/{templateId}
+          path: templates/quotes/{quoteId}
           method: put
   getTemplateQuote:
     handler: dist/src/handlers/templateQuotes/getTemplateQuote.handler
     timeout: 30
     events:
       - http:
-          path: templates/quotes/{templateId}
+          path: templates/quotes/{quoteId}
           method: get
   deleteTemplateQuote:
     handler: dist/src/handlers/templateQuotes/deleteTemplateQuote.handler
     timeout: 30
     events:
       - http:
-          path: templates/quotes/{templateId}
+          path: templates/quotes/{quoteId}
           method: delete
 
-# Commented out the resources section temporarily
+
 resources:
   Resources:
+    # Quotes Table 
     QuotesTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -111,10 +113,25 @@ resources:
       Properties:
         TableName: ${self:provider.environment.TEMPLATES_TABLE}
         AttributeDefinitions:
-          - AttributeName: templateId
+          - AttributeName: quoteId
             AttributeType: S
         KeySchema:
-          - AttributeName: templateId
+          - AttributeName: quoteId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+
+    SectionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.SECTIONS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: quoteId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: quoteId
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

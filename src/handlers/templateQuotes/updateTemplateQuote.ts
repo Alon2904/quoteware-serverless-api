@@ -2,30 +2,25 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import { v4 as uuidv4 } from "uuid";
 import { Quote } from "../../models/Quote";
 import { Section } from "../../models/Section";
-import { getProjectQuote, updateProjectQuote } from "../../services/QuoteService";
+import { getTemplateQuote, updateTemplateQuote } from "../../services/QuoteService";
 import { currentISODate } from "../../utils/dateUtils";
 import { MissingArgumentError, QuoteNotFoundError, ValidationError } from "../../utils/errors";
 import { HTTP_STATUS_CODES } from "../../utils/httpStatusCodes";
-import { updateProjectQuoteSchema } from "../../validation/quoteValidation";
+import { updateTemplateQuoteSchema } from "../../validation/quoteValidation";
 
 export const handler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
     const quoteId = event.pathParameters?.quoteId; // Assuming the quote ID is passed as a path parameter
-    const projectId = event.pathParameters?.projectId; // Assuming the project ID is passed as a path parameter
     if (!quoteId) {
         throw new MissingArgumentError("Quote ID is required"); 
-    } else if (!projectId) {
-        throw new MissingArgumentError("Project ID is required");
     }
 
-    const quote = await getProjectQuote(quoteId);
+    const quote = await getTemplateQuote(quoteId);
 
     if(!quote) {
         throw new QuoteNotFoundError(`Quote with ID "${quoteId}" not found`);
-    } else if (quote.projectId !== projectId) {
-        throw new ValidationError(`Quote with ID "${quoteId}" does not belong to project with ID "${projectId}"`);
     }
 
 
@@ -33,7 +28,7 @@ export const handler: APIGatewayProxyHandler = async (
 
     console.log('before validation');
 
-    const { error } = updateProjectQuoteSchema.validate(requestBody); // You should define updateProjectQuoteSchema
+    const { error } = updateTemplateQuoteSchema.validate(requestBody); // You should define updateTemplateQuoteSchema
     if (error) {
         throw new ValidationError(error.details[0].message);
     }
@@ -75,7 +70,7 @@ export const handler: APIGatewayProxyHandler = async (
     );
 
     console.log('after creating the new quote object');
-    const result = await updateProjectQuote(updatedQuote);
+    const result = await updateTemplateQuote(updatedQuote);
     console.log('typeof result', typeof result);
 
     return {

@@ -10,6 +10,7 @@
   constructor(
     private _id: string,
     private _title: string,
+    private _lastQuoteId?: string, // will always have a value. either of last updated or default template
     private _updatedAt?: string
   ) {}
   
@@ -21,10 +22,15 @@
   get title(): string {
     return this._title;
   }
+  get lastQuoteId(): string | undefined {
+    return this._lastQuoteId;
+  }
 
   get updatedAt(): string | undefined {
     return this._updatedAt;
   }
+
+ 
 
   // Setters
   set id(id: string) {
@@ -37,6 +43,10 @@
 
   set updatedAt(updatedAt: string) {
     this._updatedAt = updatedAt;
+  }
+
+  set lastQuoteId(lastQuoteId: string) {
+    this._lastQuoteId = lastQuoteId;
   }
 
 }

@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import { Quote } from "../../models/Quote";
-import { getProjectQuote } from "../../services/QuoteService";
+import { getTemplateQuote } from "../../services/QuoteService";
 import { MissingArgumentError, QuoteNotFoundError, ValidationError } from "../../utils/errors";
 import { HTTP_STATUS_CODES } from "../../utils/httpStatusCodes";
 
@@ -9,18 +9,12 @@ export const handler: APIGatewayProxyHandler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     const quoteId = event.pathParameters?.quoteId; // Assuming the quote ID is passed as a path parameter
-    const projectId = event.pathParameters?.projectId; // Assuming the project ID is passed as a path parameter
     if (!quoteId) {
         throw new MissingArgumentError("Quote ID is required");
-    } else if (!projectId) {
-        throw new MissingArgumentError("Project ID is required");
-    }
-
-    const quote = await getProjectQuote(quoteId);
+    }   
+    const quote = await getTemplateQuote(quoteId);
     if (!quote) {
       throw new QuoteNotFoundError(`Quote with ID "${quoteId}" not found`);
-    } else if (quote.projectId !== projectId) {
-        throw new ValidationError(`Quote with ID "${quoteId}" does not belong to project with ID "${projectId}"`);
     }
 
     console.log('quote:', quote);
