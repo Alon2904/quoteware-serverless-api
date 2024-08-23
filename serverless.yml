@@ -10,16 +10,36 @@ provider:
     SECTIONS_TABLE: ${self:service}-sections
     PROJECTS_TABLE: ${self:service}-projects
 
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:Query
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.QUOTES_TABLE}
+            - arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.TEMPLATES_TABLE}
+            - arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.SECTIONS_TABLE}
+            - arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.PROJECTS_TABLE}
+
+
 plugins:
   - serverless-offline
 
 package:
   exclude:
-    - node_modules/**
     - src/**
     - test/**
+  include:
+    - dist/**
+    - node_modules/**
 
 functions:
+  # Project Quotes
   createProjectQuote:
     handler: dist/src/handlers/projectQuotes/createProjectQuote.handler
     timeout: 30
@@ -40,6 +60,13 @@ functions:
     events:
       - http:
           path: projects/{projectId}/quotes/{quoteId}
+          method: get
+  getAllProjectQuotes:
+    handler: dist/src/handlers/projectQuotes/getAllProjectQuotes.handler
+    timeout: 30
+    events:
+      - http:
+          path: projects/{projectId}/quotes
           method: get
   deleteProjectQuote:
     handler: dist/src/handlers/projectQuotes/deleteProjectQuote.handler

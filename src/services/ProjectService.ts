@@ -7,9 +7,9 @@ const TableName = process.env.PROJECTS_TABLE as string;
 
 // Create a new project
 //creating project with no lastQuoteId as it will be added once a quote will be saved.
-export const createProject = async (projectId: string, title: string): Promise<Project> => {
+export const createProject = async (projectId: string, title: string, lastQuoteId: string): Promise<Project> => {
   try {
-    const newProject = new Project(projectId, title);
+    const newProject = new Project(projectId, title, lastQuoteId);
 
 
 

@@ -20,7 +20,7 @@ export const handler: APIGatewayProxyHandler = async (
       throw new MissingArgumentError(error.details[0].message);
     }
 
-    const { projectId, title } = requestBody;
+    const { projectId, title, lastQuoteId } = requestBody;
 
     //check if project already exists
     const existingProject = await getProject(projectId);
@@ -28,7 +28,7 @@ export const handler: APIGatewayProxyHandler = async (
       throw new ProjectAlreadyExistsError("Project with the given ID already exists");
     } 
 
-    const newProject = await createProject(projectId, title);
+    const newProject = await createProject(projectId, title, lastQuoteId);
 
     return {
       statusCode: HTTP_STATUS_CODES.CREATED,

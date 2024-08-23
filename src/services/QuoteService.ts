@@ -1,4 +1,5 @@
 import dynamoDb from "../utils/dynamoDB";
+import { DocumentClient } from "aws-sdk/clients/dynamodb";
 import { v4 as uuidv4 } from "uuid";
 import { Quote } from "../models/Quote";
 import { Section } from "../models/Section";
@@ -18,6 +19,7 @@ export const createProjectQuote = async (
   type: 'project' | 'template',
   templateVersion: number,
   itemsTableVersion: number,
+  itemsTableIndex: number,
   createdBy: string,
   sections: Section[] = [],
   projectId?: string
@@ -38,6 +40,7 @@ export const createProjectQuote = async (
       type,
       templateVersion,
       itemsTableVersion,
+      itemsTableIndex,
       createdAt,
       createdBy,
       sections,
@@ -119,6 +122,7 @@ export const updateProjectQuote = async (quoteToUpdate: Quote): Promise<Quote> =
       quoteToUpdate.type,
       quoteToUpdate.templateVersion,
       quoteToUpdate.itemsTableVersion,
+      quoteToUpdate.itemsTableIndex,
       existingQuote.createdAt, // Preserve the original createdAt
       existingQuote.createdBy, // Preserve the original createdBy
       updatedSections,
@@ -178,22 +182,29 @@ export const listProjectQuotes = async (): Promise<Quote[]> => {
 export const listProjectQuotesByProject = async (projectId: string): Promise<Quote[]> => {
   const TableName = ProjectQuotesTableName;
   try {
-    const params = {
+    const params: DocumentClient.QueryInput = {
       TableName,
-      IndexName: 'ProjectIndex', // Ensure you have an index on project_id
-      KeyConditionExpression: "project_id = :projectId",
+      IndexName: 'ProjectIndex', // Ensure this index exists and is configured correctly
+      KeyConditionExpression: "projectId = :projectId", // Ensure projectId is the partition key
       ExpressionAttributeValues: {
         ":projectId": projectId,
       },
     };
 
-    const result = await dynamoDb.query(params).promise();
-    return result.Items as Quote[];
+    const result: DocumentClient.QueryOutput = await dynamoDb.query(params).promise();
+
+    // Check if result.Items is undefined and handle it accordingly
+    if (!result.Items || result.Items.length === 0) {
+      return []; // Return an empty array if no items are found
+    }
+
+    return result.Items.map(item => Quote.fromItem(item)) as Quote[];
   } catch (error) {
     console.error("Error listing quotes by project:", error);
     throw new Error("Could not list quotes by project for project ID " + projectId);
   }
 };
+
 
 
 
@@ -209,6 +220,7 @@ export const createTemplateQuote = async (
   type: 'project' | 'template',
   templateVersion: number,
   itemsTableVersion: number,
+  itemsTableIndex: number,
   createdBy: string,
   sections: Section[] = [],
   projectId?: string
@@ -229,6 +241,7 @@ export const createTemplateQuote = async (
       type,
       templateVersion,
       itemsTableVersion,
+      itemsTableIndex,
       createdAt,
       createdBy,
       sections,
@@ -309,6 +322,7 @@ export const updateTemplateQuote = async (quoteToUpdate: Quote): Promise<Quote> 
       quoteToUpdate.type,
       quoteToUpdate.templateVersion,
       quoteToUpdate.itemsTableVersion,
+      quoteToUpdate.itemsTableIndex,
       existingQuote.createdAt, // Preserve the original createdAt
       existingQuote.createdBy, // Preserve the original createdBy
       updatedSections,

@@ -61,6 +61,7 @@ export const handler: APIGatewayProxyHandler = async (
       quote.type,
       requestBody.templateVersion,
       requestBody.itemsTableVersion,
+      requestBody.itemsTableIndex,
       quote.createdAt,
       quote.createdBy,
       sectionInstances,

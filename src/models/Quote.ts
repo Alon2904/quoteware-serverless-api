@@ -12,6 +12,7 @@ export class Quote implements IQuote {
     private _type: 'project' | 'template',
     private _templateVersion: number,
     private _itemsTableVersion: number,
+    private _itemsTableIndex: number,
     private _createdAt: string,
     private _createdBy: string,
     private _sections: Section[],
@@ -29,6 +30,7 @@ export class Quote implements IQuote {
       type: this._type,
       templateVersion: this._templateVersion,
       itemsTableVersion: this._itemsTableVersion,
+      itemsTableIndex: this._itemsTableIndex,
       createdAt: this._createdAt,
       createdBy: this._createdBy,
       updatedBy: this._updatedBy,
@@ -65,6 +67,10 @@ export class Quote implements IQuote {
 
   get itemsTableVersion(): number {
     return this._itemsTableVersion;
+  }
+
+  get itemsTableIndex(): number {
+    return this._itemsTableIndex;
   }
 
   get createdAt(): string {
@@ -107,6 +113,10 @@ export class Quote implements IQuote {
     this._itemsTableVersion = itemsTableVersion;
   }
 
+  set itemsTableIndex(itemsTableIndex: number) {
+    this._itemsTableIndex = itemsTableIndex;
+  }
+
   set updatedBy(updatedBy: string | undefined) {
     this._updatedBy = updatedBy;
   }
@@ -132,6 +142,7 @@ export class Quote implements IQuote {
    * @param title - The title of the quote.
    * @param templateVersion - The version of the template.
    * @param itemsTableVersion - The version of the items table.
+   * @param itemsTableIndex - The index of the items table.
    * @param updatedBy - The name of the user who updated the quote.
    */
   updateQuote(
@@ -139,12 +150,14 @@ export class Quote implements IQuote {
     title: string,
     templateVersion: number,
     itemsTableVersion: number,
+    itemsTableIndex: number,
     updatedBy: string
   ): void {
     this.name = name;
     this.title = title;
     this.templateVersion = templateVersion;
     this.itemsTableVersion = itemsTableVersion;
+    this.itemsTableIndex = itemsTableIndex;
     this.updatedBy = updatedBy;
     this.updatedAt = currentISODate();
   }
@@ -208,6 +221,7 @@ export class Quote implements IQuote {
       item.type,
       item.templateVersion,
       item.itemsTableVersion,
+      item.itemsTableIndex,
       item.createdAt,
       item.createdBy,
       sections,

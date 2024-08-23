@@ -5,6 +5,7 @@ import Joi from "joi";
 export const createProjectSchema = Joi.object({
   projectId: Joi.string().required(),
   title: Joi.string().required(),
+  lastQuoteId: Joi.string().required(),
 });
 
 export const updateProjectSchema = Joi.object({

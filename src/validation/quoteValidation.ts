@@ -12,6 +12,7 @@ export const createQuoteSchema = Joi.object({
   type: Joi.string().valid('project', 'template').required(),
   templateVersion: Joi.number().integer().required(),
   itemsTableVersion: Joi.number().integer().required(),
+  itemsTableIndex: Joi.number().integer().required(),
   createdBy: Joi.string().required(),
   sections: Joi.array().items(sectionSchema).required(),
   projectId: Joi.string().optional(), // Nullable for templates
@@ -25,6 +26,7 @@ export const createProjectQuoteSchema = Joi.object({
   type: Joi.string().valid('project').required(),
   templateVersion: Joi.number().integer().required(),
   itemsTableVersion: Joi.number().integer().required(),
+  itemsTableIndex: Joi.number().integer().required(),
   createdBy: Joi.string().required(),
   sections: Joi.array().items(sectionSchema).required(),
   projectId: Joi.string().required(), // Nullable for templates
@@ -36,6 +38,7 @@ export const updateProjectQuoteSchema = Joi.object({
   title: Joi.string().required(),
   templateVersion: Joi.number().integer().required(),
   itemsTableVersion: Joi.number().integer().required(),
+  itemsTableIndex: Joi.number().integer().required(),
   sections: Joi.array().items(sectionSchema).required().default([]),
   updatedBy: Joi.string().required(),
 });
@@ -46,6 +49,7 @@ export const updateQuoteSchema = Joi.object({
   title: Joi.string().required(),
   templateVersion: Joi.number().required(),
   itemsTableVersion: Joi.number().required(),
+  itemTableIndex: Joi.number().required(),
   updatedBy: Joi.string().required(), // Make sure the updatedBy field is required to track who made the changes
   sections: Joi.array().items(sectionSchema).required().default([]),
 });
@@ -60,6 +64,7 @@ export const createTemplateQuoteSchema = Joi.object({
   type: Joi.string().valid('template').required(),
   templateVersion: Joi.number().integer().required(),
   itemsTableVersion: Joi.number().integer().required(),
+  itemsTableIndex: Joi.number().integer().required(),
   createdBy: Joi.string().required(),
   sections: Joi.array().items(templateSectionSchema).required(),
   projectId: Joi.string().required(), // Nullable for templates
@@ -71,6 +76,7 @@ export const updateTemplateQuoteSchema = Joi.object({
   title: Joi.string().required(),
   templateVersion: Joi.number().integer().required(),
   itemsTableVersion: Joi.number().integer().required(),
+  itemsTableIndex: Joi.number().integer().required(),
   sections: Joi.array().items(templateSectionSchema).required().default([]),
   updatedBy: Joi.string().required(),
 });

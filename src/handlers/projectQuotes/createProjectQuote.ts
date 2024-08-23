@@ -25,7 +25,7 @@ export const handler: APIGatewayProxyHandler = async (
         throw new MissingArgumentError(error.details[0].message);
     }
 
-    const { author, name, title, type, templateVersion, itemsTableVersion, createdBy, sections } = requestBody;
+    const { author, name, title, type, templateVersion, itemsTableVersion,itemsTableIndex, createdBy, sections } = requestBody;
 
     const sectionInstances = sections.map((section: any) => {
       return new Section(
@@ -47,6 +47,7 @@ export const handler: APIGatewayProxyHandler = async (
       type,
       templateVersion,
       itemsTableVersion,
+      itemsTableIndex,
       createdBy,
       sectionInstances,
       projectId
